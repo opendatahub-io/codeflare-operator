@@ -1,0 +1,51 @@
+# This workflow will build the CodeFlare Operator image and push it to the opendatahub image registry
+
+name: Build and Push
+
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    if: (github.event.pull_request.merged == true && github.event.pull_request.user.login == 'codeflare-machine-account' && contains(github.event.pull_request.title, 'Sync with Upstream')) || github.event_name == 'workflow_dispatch'
+    name: Build and push ODH/CFO image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: v1.19
+
+    - name: Login to Quay.io
+      uses: redhat-actions/podman-login@v1
+      with:
+        username: ${{ secrets.QUAY_BOT_USER }}
+        password: ${{ secrets.QUAY_BOT_PASSWORD }}
+        registry: quay.io
+
+    - name: Get Upstream Release Tags
+      id: release-tags
+      run: |
+        release_tag=$(gh release view -R github.com/project-codeflare/codeflare-operator --json tagName | jq -r '.tagName')
+        echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Cleanup the go.mod and go.sum
+      run: |
+        go mod tidy
+
+    - name: Image Build and Push
+      run: |
+        make build
+        make image-build -e IMG=quay.io/opendatahub/codeflare-operator:${{ env.RELEASE_TAG }}
+        make image-push -e IMG=quay.io/opendatahub/codeflare-operator:${{ env.RELEASE_TAG }}
+
+    - name: Delete remote branch
+      run: |
+        git push origin --delete sync-cfo-fork
