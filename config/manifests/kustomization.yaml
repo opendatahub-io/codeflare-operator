@@ -21,5 +21,4 @@ vars:
 resources:
 - ../default
 - ../scorecard
-- ../rbac
 - codeflare-notebook-imagestream.yaml
