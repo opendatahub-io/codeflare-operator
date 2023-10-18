@@ -34,7 +34,7 @@ spec:
       containers:
       - command:
         - /manager
-        image: controller:latest
+        image: $(CONTROLLER_IMAGE)
         imagePullPolicy: Always
         name: manager
         securityContext:
