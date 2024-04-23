@@ -3,23 +3,47 @@
 name: Build and Push
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'config/manager/params.env'
   workflow_dispatch:
 
 jobs:
+  check-image-existence:
+    name: Check if ODH CFO image exists on Quay
+    runs-on: ubuntu-latest
+    outputs:
+      image-found: ${{ steps.image.outputs.found }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Verify that the latest images are available on Quay
+      id: image
+      run: |
+        imageTag=$(cat config/manager/params.env | grep codeflare-operator-controller-image | cut -d ':' -f2)
+        size=$(curl -s https://quay.io/api/v1/repository/opendatahub/codeflare-operator/tag/?specificTag=$imageTag | jq .tags[0].size)
+        if [[ "$size" -eq 0 ]]; then
+          echo "Operator image with tag $imageTag not found in Quay.io, will be built."
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "Operator image with tag $imageTag found in Quay.io"
+        fi
+
   build-and-push:
-    if: (github.event.pull_request.merged == true && github.event.pull_request.user.login == 'codeflare-machine-account' && contains(github.event.pull_request.title, 'Sync with Upstream')) || github.event_name == 'workflow_dispatch'
+    needs: [check-image-existence]
+    if: ${{ needs.check-image-existence.outputs.image-found == 'false' }}
+
     name: Build and push ODH/CFO image
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
-        go-version: v1.20
+        go-version-file: './go.mod'
 
     - name: Login to Quay.io
       uses: redhat-actions/podman-login@v1
