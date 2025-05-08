@@ -4,7 +4,7 @@
 ARG GOLANG_IMAGE=docker.io/library/golang:1.23
 FROM ${GOLANG_IMAGE} AS golang
 
-FROM registry.access.redhat.com/ubi8/ubi@sha256:fd3bf22d0593e2ed26a1c74ce161c52295711a67de677b5938c87704237e49b0 AS builder
+FROM registry.access.redhat.com/ubi8/ubi@sha256:3e6410626323e6f11af16b28b8e73faa4799fe0dbdb4b1cfbf6f029c34b038f3 AS builder
 ARG GOLANG_VERSION=1.23.0
 
 # Install system dependencies
