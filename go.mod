@@ -8,7 +8,7 @@ require (
 	github.com/onsi/gomega v1.36.1
 	github.com/open-policy-agent/cert-controller v0.12.0
 	github.com/opendatahub-io/opendatahub-operator/v2 v2.10.0
-	github.com/openshift/api v0.0.0-20240904015708-69df64132c91
+	github.com/openshift/api b7d0ca2f7643
 	github.com/openshift/client-go v0.0.0-20240904130219-3795e907a202
 	github.com/project-codeflare/appwrapper v1.0.7
 	github.com/project-codeflare/codeflare-common v0.0.0-20250321141415-67bb8bd932df
