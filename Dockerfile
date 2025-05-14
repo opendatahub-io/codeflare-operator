@@ -27,6 +27,7 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 COPY ./Makefile ./Makefile
 RUN go mod download
+RR 
 
 # Copy the Go sources
 COPY main.go main.go
