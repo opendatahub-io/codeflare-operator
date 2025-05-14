@@ -163,7 +163,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: slack-secret
-                key: slack-component-failure-notification
+                key: slack-webhook
           script: |
             pipelinerun_name=$(params.pipelinerun-name)
             target_branch={{target_branch}}
